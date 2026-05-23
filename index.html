@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pokemon TCG Live Practice Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Practice tracker</p>
+          <h1>Pokemon TCG Live</h1>
+        </div>
+        <div class="today-pill" id="todayLabel"></div>
+      </header>
+
+      <nav class="tabs" aria-label="Tracker views">
+        <button class="tab is-active" type="button" data-tab="track">Track</button>
+        <button class="tab" type="button" data-tab="trends">Trends</button>
+        <button class="tab" type="button" data-tab="matchups">Matchups</button>
+      </nav>
+
+      <section class="tab-panel is-active" id="trackPanel">
+        <section class="summary-grid" aria-label="Practice summary">
+          <article class="metric">
+            <span class="metric-label">Games</span>
+            <strong id="totalGames">0</strong>
+          </article>
+          <article class="metric">
+            <span class="metric-label">Record</span>
+            <strong id="recordText">0-0</strong>
+          </article>
+          <article class="metric">
+            <span class="metric-label">Win rate</span>
+            <strong id="winRateText">0%</strong>
+          </article>
+          <article class="metric accent">
+            <span class="metric-label">Current deck</span>
+            <strong id="currentDeckMetric">None</strong>
+          </article>
+        </section>
+
+        <div class="track-layout">
+          <section class="panel" aria-labelledby="logHeading">
+            <div class="panel-heading">
+              <div>
+                <h2 id="logHeading">Log a game</h2>
+                <p>Pick a deck, choose the day, then record the result.</p>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="deckSelect">Deck</label>
+              <select id="deckSelect"></select>
+            </div>
+
+            <form class="add-deck-row" id="deckForm">
+              <label class="sr-only" for="deckName">New deck name</label>
+              <input id="deckName" type="text" maxlength="48" placeholder="Add a deck, e.g. Charizard ex">
+              <button type="submit">Add Deck</button>
+            </form>
+
+            <div class="field-group">
+              <label for="gameDate">Game date</label>
+              <input id="gameDate" type="date">
+            </div>
+
+            <div class="field-group">
+              <label for="opponentDeck">Opponent deck</label>
+              <input id="opponentDeck" type="text" maxlength="48" list="opponentDeckOptions" placeholder="e.g. Gardevoir ex">
+              <datalist id="opponentDeckOptions"></datalist>
+            </div>
+
+            <div class="result-actions" aria-label="Game result">
+              <button class="win-button" id="logWinButton" type="button">Log Win</button>
+              <button class="loss-button" id="logLossButton" type="button">Log Loss</button>
+            </div>
+
+            <div class="deck-tools">
+              <button class="secondary-button" id="renameDeckButton" type="button">Rename Deck</button>
+              <button class="danger-link" id="deleteDeckButton" type="button">Delete Deck</button>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="deckHeading">
+            <div class="panel-heading inline">
+              <div>
+                <h2 id="deckHeading">Deck performance</h2>
+                <p id="deckSummaryText">Add a deck to begin.</p>
+              </div>
+            </div>
+
+            <div class="deck-list" id="deckList"></div>
+          </section>
+        </div>
+
+        <section class="panel history-panel" aria-labelledby="historyHeading">
+          <div class="panel-heading inline">
+            <div>
+              <h2 id="historyHeading">Recent games</h2>
+              <p>Newest games appear first.</p>
+            </div>
+            <button class="secondary-button" id="clearGamesButton" type="button">Clear Games</button>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="trendsPanel">
+        <section class="panel trend-panel" aria-labelledby="trendHeading">
+          <div class="panel-heading trend-heading">
+            <div>
+              <h2 id="trendHeading">Daily win rate</h2>
+              <p>View win percentage by day across all decks or one deck.</p>
+            </div>
+            <div class="field-group compact">
+              <label for="trendDeckSelect">View</label>
+              <select id="trendDeckSelect"></select>
+            </div>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="trendChart" width="980" height="420" aria-label="Daily win percentage line chart"></canvas>
+            <div class="empty-chart" id="emptyChart">Log games to draw your win-rate trend.</div>
+          </div>
+
+          <div class="trend-stats" id="trendStats"></div>
+          <div class="daily-table" id="dailyTable"></div>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="matchupsPanel">
+        <section class="panel matchup-panel" aria-labelledby="matchupHeading">
+          <div class="panel-heading trend-heading">
+            <div>
+              <h2 id="matchupHeading">Matchup data</h2>
+              <p>Compare your win rate against saved opponent deck titles.</p>
+            </div>
+            <div class="filter-grid">
+              <div class="field-group compact">
+                <label for="matchupDeckSelect">Your deck</label>
+                <select id="matchupDeckSelect"></select>
+              </div>
+              <div class="field-group compact">
+                <label for="matchupOpponentSelect">Opponent deck</label>
+                <select id="matchupOpponentSelect"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="trend-stats" id="matchupStats"></div>
+          <div class="matchup-table" id="matchupTable"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
