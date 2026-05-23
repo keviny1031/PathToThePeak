@@ -7,7 +7,8 @@ const state = {
   activeDeckId: null,
   trendDeckId: "all",
   matchupDeckId: "all",
-  matchupOpponent: "all"
+  matchupOpponent: "all",
+  selectedOpponentDeck: ""
 };
 
 const els = {
@@ -27,8 +28,9 @@ const els = {
   deckForm: document.querySelector("#deckForm"),
   deckName: document.querySelector("#deckName"),
   gameDate: document.querySelector("#gameDate"),
-  opponentDeck: document.querySelector("#opponentDeck"),
-  opponentDeckOptions: document.querySelector("#opponentDeckOptions"),
+  opponentDeckForm: document.querySelector("#opponentDeckForm"),
+  opponentDeckName: document.querySelector("#opponentDeckName"),
+  opponentDeckSelect: document.querySelector("#opponentDeckSelect"),
   logWinButton: document.querySelector("#logWinButton"),
   logLossButton: document.querySelector("#logLossButton"),
   renameDeckButton: document.querySelector("#renameDeckButton"),
@@ -127,6 +129,7 @@ function loadState() {
     state.trendDeckId = saved.trendDeckId || "all";
     state.matchupDeckId = saved.matchupDeckId || "all";
     state.matchupOpponent = saved.matchupOpponent || "all";
+    state.selectedOpponentDeck = normalizeTitle(saved.selectedOpponentDeck);
   } catch (error) {
     console.warn("Could not load saved tracker data.", error);
   }
@@ -166,7 +169,8 @@ function saveState() {
       activeDeckId: state.activeDeckId,
       trendDeckId: state.trendDeckId,
       matchupDeckId: state.matchupDeckId,
-      matchupOpponent: state.matchupOpponent
+      matchupOpponent: state.matchupOpponent,
+      selectedOpponentDeck: state.selectedOpponentDeck
     })
   );
 }
@@ -188,9 +192,29 @@ function getOpponentDeckTitles() {
 
 function saveOpponentDeckTitle(title) {
   const normalizedTitle = normalizeTitle(title);
-  if (!normalizedTitle) return;
+  if (!normalizedTitle) return "";
 
   state.opponentDecks = getUniqueTitles([...state.opponentDecks, normalizedTitle]);
+  return normalizedTitle;
+}
+
+function addOpponentDeck(name) {
+  const normalizedName = normalizeTitle(name);
+  if (!normalizedName) return;
+
+  const existingTitle = getOpponentDeckTitles().find(
+    (title) => title.toLowerCase() === normalizedName.toLowerCase()
+  );
+
+  state.selectedOpponentDeck = existingTitle || saveOpponentDeckTitle(normalizedName);
+  saveState();
+  render();
+}
+
+function getOpponentDeckForLog() {
+  const selectedOpponentDeck = normalizeTitle(els.opponentDeckSelect.value);
+  const typedOpponentDeck = normalizeTitle(els.opponentDeckName.value);
+  return selectedOpponentDeck || typedOpponentDeck;
 }
 
 function reconcileMatchupFilters() {
@@ -203,6 +227,13 @@ function reconcileMatchupFilters() {
     !getOpponentDeckTitles().includes(state.matchupOpponent)
   ) {
     state.matchupOpponent = "all";
+  }
+
+  if (
+    state.selectedOpponentDeck &&
+    !getOpponentDeckTitles().includes(state.selectedOpponentDeck)
+  ) {
+    state.selectedOpponentDeck = "";
   }
 }
 
@@ -298,8 +329,13 @@ function logGame(result) {
   }
 
   const date = els.gameDate.value || getTodayInputValue();
-  const opponentDeck = normalizeTitle(els.opponentDeck.value);
-  saveOpponentDeckTitle(opponentDeck);
+  const opponentDeck = getOpponentDeckForLog();
+  const savedOpponentDeck = saveOpponentDeckTitle(opponentDeck);
+  if (savedOpponentDeck) {
+    state.selectedOpponentDeck = savedOpponentDeck;
+    els.opponentDeckName.value = "";
+  }
+
   state.games.push({
     id: createId("game"),
     deckId: deck.id,
@@ -454,12 +490,23 @@ function renderDeckSelects() {
   els.matchupDeckSelect.value = state.matchupDeckId;
 
   const opponentTitles = getOpponentDeckTitles();
-  els.opponentDeckOptions.innerHTML = "";
+  els.opponentDeckSelect.innerHTML = "";
+  const noOpponentOption = document.createElement("option");
+  noOpponentOption.value = "";
+  noOpponentOption.textContent = "No opponent deck";
+  els.opponentDeckSelect.append(noOpponentOption);
+
   opponentTitles.forEach((title) => {
     const option = document.createElement("option");
     option.value = title;
-    els.opponentDeckOptions.append(option);
+    option.textContent = title;
+    els.opponentDeckSelect.append(option);
   });
+
+  if (state.selectedOpponentDeck && !opponentTitles.includes(state.selectedOpponentDeck)) {
+    state.selectedOpponentDeck = "";
+  }
+  els.opponentDeckSelect.value = state.selectedOpponentDeck || "";
 
   els.matchupOpponentSelect.innerHTML = "";
   const allOpponentsOption = document.createElement("option");
@@ -810,6 +857,13 @@ function bindEvents() {
     els.deckName.focus();
   });
 
+  els.opponentDeckForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addOpponentDeck(els.opponentDeckName.value);
+    els.opponentDeckName.value = "";
+    els.opponentDeckSelect.focus();
+  });
+
   els.deckSelect.addEventListener("change", () => {
     state.activeDeckId = els.deckSelect.value || null;
     saveState();
@@ -820,6 +874,11 @@ function bindEvents() {
     state.trendDeckId = els.trendDeckSelect.value || "all";
     saveState();
     renderTrends();
+  });
+
+  els.opponentDeckSelect.addEventListener("change", () => {
+    state.selectedOpponentDeck = els.opponentDeckSelect.value || "";
+    saveState();
   });
 
   els.matchupDeckSelect.addEventListener("change", () => {

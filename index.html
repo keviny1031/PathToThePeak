@@ -68,10 +68,15 @@
             </div>
 
             <div class="field-group">
-              <label for="opponentDeck">Opponent deck</label>
-              <input id="opponentDeck" type="text" maxlength="48" list="opponentDeckOptions" placeholder="e.g. Gardevoir ex">
-              <datalist id="opponentDeckOptions"></datalist>
+              <label for="opponentDeckSelect">Opponent deck</label>
+              <select id="opponentDeckSelect"></select>
             </div>
+
+            <form class="add-opponent-row" id="opponentDeckForm">
+              <label class="sr-only" for="opponentDeckName">New opponent deck name</label>
+              <input id="opponentDeckName" type="text" maxlength="48" placeholder="Save opponent deck, e.g. Gardevoir ex">
+              <button type="submit">Save Opponent</button>
+            </form>
 
             <div class="result-actions" aria-label="Game result">
               <button class="win-button" id="logWinButton" type="button">Log Win</button>

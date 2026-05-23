@@ -236,7 +236,8 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-.add-deck-row {
+.add-deck-row,
+.add-opponent-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
@@ -244,6 +245,7 @@ button:focus-visible {
 }
 
 .add-deck-row button,
+.add-opponent-row button,
 .secondary-button,
 .win-button,
 .loss-button {
@@ -255,6 +257,7 @@ button:focus-visible {
 }
 
 .add-deck-row button,
+.add-opponent-row button,
 .secondary-button {
   border: 1px solid #c8d5c9;
   background: #eef6ef;
@@ -587,6 +590,7 @@ canvas {
   }
 
   .add-deck-row,
+  .add-opponent-row,
   .result-actions,
   .history-row,
   .daily-row,
